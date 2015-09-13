@@ -51,6 +51,7 @@ public class HTTPService extends IntentService {
 
     private static final int socketTimeoutMilliseconds = 45000; // 45 second timeout
     private static final int connectionTimeoutMilliseconds = 10000; // 10 second timeout
+
     // Unused public static final String GOOD_RESPONSE = "{\"Success\":true}";
 
 
@@ -255,6 +256,7 @@ public class HTTPService extends IntentService {
             Log.d("test:", "HTTPGet setup");
             httpResponse = httpClient.execute(httpGet);
             Log.d("test:", "HTTPGet executed - response received");
+
 
             httpEntity = httpResponse.getEntity();
             response = EntityUtils.toString(httpEntity);

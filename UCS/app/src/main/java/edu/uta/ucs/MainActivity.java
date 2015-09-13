@@ -86,6 +86,10 @@ public class MainActivity extends ActionBarActivity {
                 UserData.logout(MainActivity.this);
                 //signOut();
                 break;
+            case R.id.action_sync:
+                UserData.sync_upload();
+                //signOut();
+                break;
         }
 
         return super.onOptionsItemSelected(item);

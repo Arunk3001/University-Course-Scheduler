@@ -269,22 +269,17 @@ public class Schedule {
 
         Log.i("Verify Schedule", "About to attempt verify schedule");
 
-        StringBuilder semesterParam = new StringBuilder(UserData.getContext().getString(R.string.validate_courses_param_semester));
-        StringBuilder departmentParam = new StringBuilder(UserData.getContext().getString(R.string.validate_courses_param_department));
-        StringBuilder classNumberParam = new StringBuilder(UserData.getContext().getString(R.string.validate_courses_param_class_number));
+        StringBuilder semesterParam = new StringBuilder();
+        StringBuilder classNumberParam = new StringBuilder(UserData.getContext().getString(R.string.validate_courses_param_sections));
 
         for (Section section : selectedSections){
 
-            semesterParam.append(semesterNumber).append(",");
-            departmentParam.append(section.getSourceCourse().getDepartmentAcronym()).append(",");
             classNumberParam.append(section.getSectionID()).append(",");
         }
 
-        String semesterParamFinal = semesterParam.length() > 0 ? semesterParam.substring( 0, semesterParam.length() - 1 ): "";
-        String departmentParamFinal = departmentParam.length() > 0 ? departmentParam.substring( 0, departmentParam.length() - 1 ): "";
         String courseNumberParamFinal = classNumberParam.length() > 0 ? classNumberParam.substring( 0, classNumberParam.length() - 1 ): "";
 
-        String urlFinal = UserData.getContext().getString(R.string.validate_courses_base) + semesterParamFinal + departmentParamFinal + courseNumberParamFinal;
+        String urlFinal = UserData.getContext().getString(R.string.validate_courses_base) + UserData.getContext().getString(R.string.validate_courses_param_semester) + this.getSemesterNumber() + courseNumberParamFinal;
 
         HTTPService.FetchURL(urlFinal, ACTION_VERIFY_SCHEDULE, context);
 

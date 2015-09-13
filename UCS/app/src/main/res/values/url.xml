@@ -7,15 +7,13 @@
     <string name="create_account_param_hashedpwd"><![CDATA[&hashedpwd=]]></string>
     <string name="create_account_param_email"><![CDATA[&email=]]></string>
 
-    <string name="get_course_info_base">/GetCourseInfo?</string>
-
-    <string name="validate_courses_base">/ValidateCourses?</string>
+    <string name="validate_courses_base">/GetSectionInfo.php?</string>
     <string name="validate_courses_param_semester">semester=</string>
-    <string name="validate_courses_param_department"><![CDATA[&department=]]></string>
-    <string name="validate_courses_param_course_number"><![CDATA[&courseNumber=]]></string>
-    <string name="validate_courses_param_class_number"><![CDATA[&classNumbers=]]></string>
+    <string name="validate_courses_param_sections"><![CDATA[&sections=]]></string>
 
     <string name="email_exists_base">/UTA/EmailExists?email=</string>
+
+    <string name="sync_base">/PHPincludes/sync.php</string>
 
     <string name="logout_base">/Logout</string>
     <string name="logout_param_email">email=</string>
@@ -26,11 +24,11 @@
     <string name="login_param_password"><![CDATA[&password=]]></string>
     <string name="login_param_hashedpwd"><![CDATA[&hashedpwd=]]></string>
 
-    <string name="get_course_section_base">/GetCourseInfo?</string>
+    <string name="get_course_section_base">/GetCourseInfo.php?</string>
     <string name="get_course_sections_param_semester">semester=</string>
-    <string name="get_course_sections_param_department"><![CDATA[&department=]]></string>
+    <string name="get_course_sections_param_courses"><![CDATA[&courses=]]></string>
 
-    <string name="get_semester_data">/GetDepartmentClassData</string>
+    <string name="get_semester_data">/GetDepartmentClassData.JSON</string>
 
     <string name="change_settings_base">/Change</string>
     <string name="delete_account">/DeleteAccount?email=</string>

@@ -85,10 +85,10 @@ class SemesterInfo{
      * @throws JSONException
      */
     SemesterInfo(JSONObject semesterInfoRaw) throws JSONException {
-        this.semesterNumber = semesterInfoRaw.getInt("SemesterNumber");
-        this.semesterName = semesterInfoRaw.getString("SemesterName");
+        this.semesterNumber = semesterInfoRaw.getInt("NUMBER");
+        this.semesterName = semesterInfoRaw.getString("DESCRIPTION");
         Log.i("Semester Number", ((Integer) getSemesterNumber()).toString());
-        JSONArray departmentJSONArrayRaw = semesterInfoRaw.getJSONArray("Departments");
+        JSONArray departmentJSONArrayRaw = semesterInfoRaw.getJSONArray("DEPARTMENTS");
         this.departmentArrayList = new ArrayList<>(departmentJSONArrayRaw.length());
 
         for(int index = departmentJSONArrayRaw.length(); index != 0;index--){
@@ -106,9 +106,9 @@ class SemesterInfo{
         JSONArray departmentInfoJSONArray = new JSONArray(departmentInfoArray);
 
         JSONObject semesterInfoJSON = new JSONObject();
-        semesterInfoJSON.put("SemesterNumber", ((Integer) this.getSemesterNumber()).toString());
-        semesterInfoJSON.put("SemesterName", this.semesterName);
-        semesterInfoJSON.put("Departments", departmentInfoJSONArray);
+        semesterInfoJSON.put("NUMBER", ((Integer) this.getSemesterNumber()).toString());
+        semesterInfoJSON.put("DESCRIPTION", this.semesterName);
+        semesterInfoJSON.put("DEPARTMENTS", departmentInfoJSONArray);
         return semesterInfoJSON;
     }
 
@@ -159,25 +159,22 @@ class SemesterInfo{
          * @throws JSONException
          */
         public DepartmentInfo(JSONObject departmentInfoRaw) throws JSONException {
-            this.setDepartmentID(departmentInfoRaw.getInt("Id"));
-            this.setDepartmentAcronym(departmentInfoRaw.getString("DepartmentAcronym"));
-            this.setDepartmentTitle(departmentInfoRaw.getString("DepartmentName"));//departmentInfoRaw.getString("Title");
-            JSONArray courseJSONArrayRaw = departmentInfoRaw.getJSONArray("CourseNumbers");
+            this.setDepartmentAcronym(departmentInfoRaw.getString("ACRONYM"));
+            this.setDepartmentTitle(departmentInfoRaw.getString("NAME"));//departmentInfoRaw.getString("Title");
+            JSONArray courseJSONArrayRaw = departmentInfoRaw.getJSONArray("COURSES");
             this.courses = new ArrayList<>(courseJSONArrayRaw.length());
 
             for(int index = courseJSONArrayRaw.length(); index != 0;index--){
                 this.getCourses().add(new CourseInfo(courseJSONArrayRaw.getJSONObject(index - 1), this));
             }
 
-            Log.i("Department Details", "New Department Added:"+ getDepartmentID() + " " + getDepartmentAcronym() + " " + getDepartmentTitle() + " " + getCourses().size());
+            Log.i("Department Details", "New Department Added:" + getDepartmentAcronym() + " " + getDepartmentTitle() + " " + getCourses().size());
         }
 
         @SuppressWarnings("unused")
         public DepartmentInfo(){
-            this.setDepartmentID(0);
             this.setDepartmentAcronym(null);
             this.setDepartmentTitle(null);
-            this.setCourses(null);
         }
 
         public JSONObject toJSON() throws JSONException {
@@ -190,21 +187,13 @@ class SemesterInfo{
 
             JSONObject departmentInfoJSON = new JSONObject();
 
-            departmentInfoJSON.put("Id", departmentID);
-            departmentInfoJSON.put("DepartmentAcronym",departmentAcronym);
-            departmentInfoJSON.put("DepartmentName", departmentTitle);
-            departmentInfoJSON.put("CourseNumbers", courseInfoJSONArray);
+            departmentInfoJSON.put("ACRONYM",departmentAcronym);
+            departmentInfoJSON.put("NAME", departmentTitle);
+            departmentInfoJSON.put("COURSES", courseInfoJSONArray);
 
             return departmentInfoJSON;
         }
 
-        public int getDepartmentID() {
-            return departmentID;
-        }
-
-        public void setDepartmentID(int departmentID) {
-            this.departmentID = departmentID;
-        }
 
         public String getDepartmentTitle() {
             return departmentTitle;
@@ -218,9 +207,6 @@ class SemesterInfo{
             return courses;
         }
 
-        public void setCourses(ArrayList<CourseInfo> courses) {
-            this.courses = courses;
-        }
 
         public String getDepartmentAcronym() {
             return departmentAcronym;
@@ -250,8 +236,8 @@ class SemesterInfo{
              * @throws JSONException
              */
             public CourseInfo(JSONObject courseInfoJSONObject, DepartmentInfo departmentInfo) throws JSONException {
-                this.courseNumber = courseInfoJSONObject.getInt("CourseNumber");
-                this.courseTitle = courseInfoJSONObject.getString("CourseName");
+                this.courseNumber = courseInfoJSONObject.getInt("ID");
+                this.courseTitle = courseInfoJSONObject.getString("NAME");
                 //Log.i("Course Details", "New Course Added:" + " " + this.courseNumber + " " + this.courseTitle);
                 this.departmentInfo = departmentInfo;
             }
@@ -266,8 +252,8 @@ class SemesterInfo{
 
             public JSONObject toJSON() throws JSONException {
                 JSONObject courseInfo = new JSONObject();
-                courseInfo.put("CourseNumber", courseNumber);
-                courseInfo.put("CourseName", courseTitle);
+                courseInfo.put("ID", courseNumber);
+                courseInfo.put("NAME", courseTitle);
                 return courseInfo;
             }
 
@@ -529,8 +515,7 @@ public class SelectCourses extends ActionBarActivity {
 
     public static final String URL_GET_COURSE_SECTIONS = UserData.getContext().getString(R.string.get_course_section_base);
     public static final String URL_GET_COURSE_SECTIONS_PARAM_SEMESTER = UserData.getContext().getString(R.string.get_course_sections_param_semester);
-    public static final String URL_GET_COURSE_SECTIONS_PARAM_DEPARTMENT = UserData.getContext().getString(R.string.get_course_sections_param_department);
-    public static final String URL_GET_COURSE_SECTIONS_PARAM_COURSENUMBER = UserData.getContext().getString(R.string.get_course_sections_param_course_number);
+    public static final String URL_GET_COURSE_SECTIONS_PARAM_COURSENUMBER = UserData.getContext().getString(R.string.get_course_sections_param_courses);
 
     public static final String ACTION_GET_DESIRED_COURSE_SECTIONS ="edu.uta.ucs.intent.action.ACTION_GET_DESIRED_COURSE_SECTIONS";
 
@@ -795,21 +780,16 @@ public class SelectCourses extends ActionBarActivity {
             return;
         }
 
-        StringBuilder semesterParam = new StringBuilder(URL_GET_COURSE_SECTIONS_PARAM_SEMESTER);
-        StringBuilder departmentParam = new StringBuilder(URL_GET_COURSE_SECTIONS_PARAM_DEPARTMENT);
-        StringBuilder courseNumberParam = new StringBuilder(URL_GET_COURSE_SECTIONS_PARAM_COURSENUMBER);
+        StringBuilder courseParam = new StringBuilder(URL_GET_COURSE_SECTIONS_PARAM_COURSENUMBER);
 
         for (SemesterInfo.DepartmentInfo.CourseInfo courseInfo : desiredCoursesArrayList){
-            semesterParam.append(selectedSemester.getSemesterNumber()).append(",");
-            departmentParam.append(courseInfo.getDepartmentInfo().getDepartmentAcronym()).append(",");
-            courseNumberParam.append(courseInfo.getCourseNumber()).append(",");
+            courseParam.append(courseInfo.getDepartmentInfo().getDepartmentAcronym() + "-" + courseInfo.getCourseNumber()).append(",");
         }
 
-        String semesterParamFinal = semesterParam.length() > 0 ? semesterParam.substring( 0, semesterParam.length() - 1 ): "";
-        String departmentParamFinal = departmentParam.length() > 0 ? departmentParam.substring( 0, departmentParam.length() - 1 ): "";
-        String courseNumberParamFinal = courseNumberParam.length() > 0 ? courseNumberParam.substring( 0, courseNumberParam.length() - 1 ): "";
+        String semesterParamFinal = URL_GET_COURSE_SECTIONS_PARAM_SEMESTER + selectedSemester.getSemesterNumber();
+        String courseNumberParamFinal = courseParam.length() > 0 ? courseParam.substring( 0, courseParam.length() - 1 ): "";
 
-        String urlFinal = URL_GET_COURSE_SECTIONS + semesterParamFinal + departmentParamFinal + courseNumberParamFinal;
+        String urlFinal = URL_GET_COURSE_SECTIONS + semesterParamFinal + courseNumberParamFinal;
 
         HTTPService.FetchURL(urlFinal, ACTION_GET_DESIRED_COURSE_SECTIONS, this);
 

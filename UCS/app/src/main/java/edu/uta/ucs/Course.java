@@ -82,6 +82,30 @@ public class Course {
      */
     Course(JSONObject jsonObject) throws JSONException {
 
+        if (jsonObject.toString().length() > 4000) {
+            Log.v("New Course", "sb.length = " + jsonObject.toString().length());
+            int chunkCount = jsonObject.toString().length() / 4000;     // integer division
+            for (int i = 0; i <= chunkCount; i++) {
+                int max = 4000 * (i + 1);
+                if (max >= jsonObject.toString().length()) {
+                    Log.v("New Course", "chunk " + i + " of " + chunkCount + ":" + jsonObject.toString().substring(4000 * i));
+                } else {
+                    Log.v("New Course", "chunk " + i + " of " + chunkCount + ":" + jsonObject.toString().substring(4000 * i, max));
+                }
+            }
+        } else {
+            Log.v("New Course", jsonObject.toString().toString());
+        }
+
+        if(jsonObject.has("CourseResults")) {
+            JSONArray jsonSectionList = jsonObject.getJSONArray("CourseResults");
+            for(int index = jsonSectionList.length(); index != 0;index--){
+                Log.i("New Course Section: ",jsonSectionList.getJSONObject( index-1 ).toString());
+            }
+        }
+
+
+
         if(jsonObject.has("CourseId")) {
             this.courseNumber = jsonObject.getString("CourseId");
             Log.i("New Course ID", getCourseNumber());

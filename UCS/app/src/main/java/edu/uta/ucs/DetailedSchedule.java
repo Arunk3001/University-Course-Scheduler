@@ -38,11 +38,10 @@ import java.util.Map;
  */
 public class DetailedSchedule extends Activity {
 
-    public static final String URL_GET_COURSE_SECTIONS =UserData.getContext().getString(R.string.get_course_info_base);
+    public static final String URL_GET_COURSE_SECTIONS =UserData.getContext().getString(R.string.get_course_section_base);
     //public static final String URL_VALIDATE_COURSES =UserData.getContext().getString(R.string.validate_courses_base); // No longer used
     public static final String URL_GET_COURSE_SECTIONS_PARAM_SEMESTER =UserData.getContext().getString(R.string.validate_courses_param_semester);
-    public static final String URL_GET_COURSE_SECTIONS_PARAM_DEPARTMENT =UserData.getContext().getString(R.string.validate_courses_param_department);
-    public static final String URL_GET_COURSE_SECTIONS_PARAM_CLASSNUMBER =UserData.getContext().getString(R.string.validate_courses_param_course_number);
+    public static final String URL_GET_COURSE_SECTIONS_PARAM_CLASSNUMBER =UserData.getContext().getString(R.string.get_course_sections_param_courses);
 
     private static final String ACTION_GET_COURSE_SECTIONS = "ACTION_GET_COURSE_SECTIONS";
     private static final String ACTION_VERIFY_SCHEDULE = "ACTION_VERIFY_SCHEDULE";
@@ -307,8 +306,7 @@ public class DetailedSchedule extends Activity {
 
         String url = URL_GET_COURSE_SECTIONS
                 + URL_GET_COURSE_SECTIONS_PARAM_SEMESTER + scheduleToShow.getSemesterNumber()
-                + URL_GET_COURSE_SECTIONS_PARAM_DEPARTMENT + department
-                + URL_GET_COURSE_SECTIONS_PARAM_CLASSNUMBER + classNumber;
+                + URL_GET_COURSE_SECTIONS_PARAM_CLASSNUMBER + department + "-" + classNumber;
 
         HTTPService.FetchURL(url, ACTION_GET_COURSE_SECTIONS, this);
 
@@ -322,7 +320,7 @@ public class DetailedSchedule extends Activity {
     class CouresAlternatesReciever extends BroadcastReceiver{
 
         /**
-         * This method is called when the BroadcastReceiver is receiving an Intent
+         * This method is called when the BroadcastReceiver iURL_GET_COURSE_SECTIONSs receiving an Intent
          * broadcast.  During this time you can use the other methods on
          * BroadcastReceiver to view/modify the current result values.  This method
          * is always called within the main thread of its process, unless you

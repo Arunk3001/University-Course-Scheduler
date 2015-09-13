@@ -55,11 +55,11 @@ enum ClassStatus {
  */
 @SuppressWarnings("unused")
 enum Day {
-    M("M"),
+    MO("MO"),
     TU("TU"),
-    W("W"),
+    WE("WE"),
     TH("TH"),
-    F("F"),
+    FR("FR"),
     SA("SA");
 
     private String value;

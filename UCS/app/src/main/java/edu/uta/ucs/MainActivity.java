@@ -63,6 +63,8 @@ public class MainActivity extends ActionBarActivity {
         });
 
         scheduleNameAdapter.notifyDataSetChanged();
+
+        Log.i("Session_ID", UserData.getSession_id());
     }
 
 

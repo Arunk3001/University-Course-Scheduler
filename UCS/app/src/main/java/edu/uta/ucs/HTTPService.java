@@ -6,19 +6,26 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,8 +35,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -47,10 +57,12 @@ public class HTTPService extends IntentService {
     public static final String SERVER_RESPONSE = "edu.uta.ucs.SERVER_RESPONSE";
     public static final String SPOOFED_RESPONSE = "edu.uta.ucs.SPOOFED_RESPONSE";
     public static final String SOURCE_INTENT = "SOURCE_INTENT";
-    public static final String BAD_RESPONSE = "{\"Success\":false}";
+    public static final String BAD_RESPONSE = "{\"SUCCESS\":false}";
 
     private static final int socketTimeoutMilliseconds = 45000; // 45 second timeout
     private static final int connectionTimeoutMilliseconds = 10000; // 10 second timeout
+
+    private static String sec_session_id = null;
 
     // Unused public static final String GOOD_RESPONSE = "{\"Success\":true}";
 
@@ -78,6 +90,23 @@ public class HTTPService extends IntentService {
                 break;
 
         }
+    }
+
+    private HttpContext httpContext = null;
+    private HttpContext getHttpContext(){
+        if (httpContext == null){
+            // Create a local instance of cookie store
+            CookieStore cookieStore = new BasicCookieStore();
+
+            // Create local HTTP context
+            HttpContext localContext = new BasicHttpContext();
+            // Bind custom cookie store to the local context
+            localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+            return httpContext;
+
+        }
+        else return httpContext;
     }
 
     /**
@@ -199,6 +228,14 @@ public class HTTPService extends IntentService {
 
             Log.i("HTTPService", "parsedJSON  " + parsedJSON.toString());
 
+            /*
+            String headerName = null;
+            for (int i=1; (headerName = testConn.getHeaderFieldKey(i))!=null; i++){
+                if(headerName.equals("Set-Cookie")){
+                    String cookie = testConn.getHeaderField(i);
+                }
+            }*/
+
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeoutMilliseconds);
             HttpConnectionParams.setSoTimeout(httpParams, socketTimeoutMilliseconds);
@@ -211,6 +248,10 @@ public class HTTPService extends IntentService {
             // Prepare JSON to send by setting the entity
             //httpPost.setEntity(new StringEntity(jsonString, "UTF-8"));
             httpPost.setEntity(new UrlEncodedFormEntity(parsedJSON));
+            if(sec_session_id != null){
+                Log.i("sec_session_id", sec_session_id);
+                httpPost.setHeader("Cookie", "sec_session_id="+sec_session_id);
+            }
 
             // Set up the header types needed to properly transfer JSON
             //httpPost.setHeader("Content-Type", "application/json");
@@ -218,9 +259,21 @@ public class HTTPService extends IntentService {
             //httpPost.setHeader("Accept-Language", "en-US");
 
             // Execute POST
-            HttpResponse httpResponse = httpClient.execute(httpPost);
+            HttpResponse httpResponse = httpClient.execute(httpPost, getHttpContext());
             HttpEntity httpEntity = httpResponse.getEntity();
             response = EntityUtils.toString(httpEntity);
+            //Header responseHeaders[] = httpResponse.getHeaders("Set-Cookie");
+            Header responseHeader = httpResponse.getLastHeader("Set-Cookie");
+
+            if (responseHeader != null) {
+                sec_session_id = responseHeader.getValue();
+                sec_session_id = sec_session_id.substring(sec_session_id.indexOf("=") + 1, sec_session_id.indexOf(";"));
+                Log.i("new sec_session_id", sec_session_id);
+                Log.i("Last Response Header", responseHeader.getValue());
+            }
+            /*for(Header header : responseHeaders){
+                Log.i("Response Headers", header.getValue());
+            }*/
 
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
@@ -247,18 +300,32 @@ public class HTTPService extends IntentService {
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeoutMilliseconds);
             HttpConnectionParams.setSoTimeout(httpParams, socketTimeoutMilliseconds);
-            DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+            HttpClient httpClient = new DefaultHttpClient(httpParams);
             HttpEntity httpEntity;
             HttpResponse httpResponse;
             Log.d("test:", "fetchJSON HTTP parameters set");
 
             HttpGet httpGet = new HttpGet(url.toURI());
+            if(sec_session_id != null){
+                Log.i("sec_session_id", sec_session_id);
+                httpGet.setHeader("Cookie", "sec_session_id="+sec_session_id);
+            }
             Log.d("test:", "HTTPGet setup");
-            httpResponse = httpClient.execute(httpGet);
+            httpResponse = httpClient.execute(httpGet,getHttpContext());
             Log.d("test:", "HTTPGet executed - response received");
 
 
             httpEntity = httpResponse.getEntity();
+
+            Header responseHeader = httpResponse.getLastHeader("Set-Cookie");
+
+            if (responseHeader != null) {
+                sec_session_id = responseHeader.getValue();
+                sec_session_id = sec_session_id.substring(sec_session_id.indexOf("=") + 1, sec_session_id.indexOf(";"));
+                Log.i("new sec_session_id", sec_session_id);
+                Log.i("Last Response Header", responseHeader.getValue());
+            }
+
             response = EntityUtils.toString(httpEntity);
 
         } catch (URISyntaxException | IOException e) {

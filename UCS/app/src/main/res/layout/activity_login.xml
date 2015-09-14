@@ -33,15 +33,17 @@
                 android:inputType="textEmailAddress" android:maxLines="1"
                 android:singleLine="true"
                 android:autoText="false"
+                android:imeOptions="actionNext"
                 android:background="@android:color/background_light" />
 
             <EditText android:id="@+id/password" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_password"
                 android:imeActionId="@integer/defaultImeActionID"
                 android:imeActionLabel="@string/action_sign_in_short"
-                android:imeOptions="actionUnspecified" android:inputType="textPassword"
+                android:inputType="textPassword"
                 android:maxLines="1" android:singleLine="true"
                 android:background="@android:color/background_light"
+                android:imeOptions="actionDone"
                 android:layout_marginTop="8dp" />
 
             <Button android:id="@+id/email_sign_in_button"

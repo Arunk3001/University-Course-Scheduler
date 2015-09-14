@@ -133,6 +133,7 @@ public class UserData extends Application {
 
         UserData.setEmail(null);
         UserData.setMilitaryTime(false);
+        UserData.setSession_id(null);
 
     }
 

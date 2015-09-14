@@ -1000,6 +1000,11 @@ public class SelectCourses extends ActionBarActivity {
                     float timeTaken = Float.parseFloat(response.getString("TimeTaken"));
                     Log.d("New Request Time Taken:", Float.toString(timeTaken));
                     fetchedCourses = Course.buildCourseList(jsonCourses);
+                    for(Course course : fetchedCourses){
+                        for(Section section : course.getSectionList()){
+                            Log.i("Section Data Test", section.toJSON().toString());
+                        }
+                    }
                     generateSchedule(fetchedCourses);
                 }
 

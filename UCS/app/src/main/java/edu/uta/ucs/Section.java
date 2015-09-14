@@ -242,17 +242,21 @@ public class Section {
         }
 
         JSONArray jsonDaysArray = jsonObject.getJSONArray("MeetingDays");
-        Log.i("New Section Days List:", jsonDaysArray.toString());
+        Log.i("New Section Days List", jsonDaysArray.toString());
 
         days = new ArrayList<>(jsonDaysArray.length());
 
         for(int index = jsonDaysArray.length(); index != 0;index--){
             Day temp = Day.valueOf(jsonDaysArray.getString(index -1));
             days.add(temp);
-            Log.i("New Section Day: ", days.get(days.size()-1).toString());
+            Log.i("New Section Day", days.get(days.size()-1).toString());
         }
         Collections.reverse(days);
-        Log.i("New Section #of Days: ", ((Integer) days.size()).toString());
+        Log.i("New Section #of Days", ((Integer) days.size()).toString());
+        for(Day day:days){
+            Log.i("Day in Section", day.toString());
+        }
+        Log.i("New Section Days", days.toString());
 
         this.setStatus(ClassStatus.valueOf(jsonObject.getString("Status").toUpperCase().replace(" ", "_")));
 
@@ -265,7 +269,11 @@ public class Section {
      */
     public JSONObject toJSON() {
         JSONObject section = new JSONObject();
-        JSONArray days = new JSONArray(this.days);
+        JSONArray days = new JSONArray();
+        for(Day day : this.days){
+            days.put(day.toString());
+        }
+        Log.i("Section toJSON DAYS", days.toString());
         try {
             section.put("MeetingTime", getTimeString());
             section.put("CourseNumber", getSectionID());

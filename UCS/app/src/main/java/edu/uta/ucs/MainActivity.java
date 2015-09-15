@@ -63,6 +63,8 @@ public class MainActivity extends ActionBarActivity {
         });
 
         scheduleNameAdapter.notifyDataSetChanged();
+
+        Log.i("Session_ID", UserData.getSession_id());
     }
 
 
@@ -84,6 +86,10 @@ public class MainActivity extends ActionBarActivity {
                 break;
             case R.id.action_logout:
                 UserData.logout(MainActivity.this);
+                //signOut();
+                break;
+            case R.id.action_sync:
+                UserData.sync_upload();
                 //signOut();
                 break;
         }

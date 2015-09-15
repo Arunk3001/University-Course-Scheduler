@@ -24,9 +24,11 @@ public class UserData extends Application {
     private static Context context;
     private static String email;
     private static boolean militaryTime;
+    private static String session_id;
 
     // Intent filter tag.
     public static final String ACTION_LOGOUT = "ACTION_LOGOUT";
+
 
 
     @Override
@@ -39,6 +41,7 @@ public class UserData extends Application {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 
 
+        UserData.setSession_id(null);
         UserData.setEmail(null);
         UserData.setMilitaryTime(settings.getBoolean(context.getResources().getString(R.string.pref_key_military_time), false));
     }
@@ -55,6 +58,11 @@ public class UserData extends Application {
 
     public static void setUserData(JSONObject userDataJSON) throws JSONException {
 
+        if(userDataJSON.has("SESSION_ID")) {
+            Log.i("UserData Login","Found session id in login data");
+            UserData.setSession_id(userDataJSON.getString("SESSION_ID"));
+            Log.i("UserData Login","session id set to: "+ UserData.getSession_id());
+        }
         if(userDataJSON.has("Email")) {
             Log.i("UserData Login","Found Email in login data");
             UserData.setEmail(userDataJSON.getString("Email"));
@@ -104,36 +112,28 @@ public class UserData extends Application {
         return userDataJSON;
     }
 
-    public static void logout(Context context) {
+    public static void sync_upload(){
 
-        JSONObject logoutJSON;
-
-        if(UserData.getEmail() == null) {
-            Log.i("UserData Logout", "No user to logout");
-            new Exception("Stack trace").printStackTrace();
-            return;
-        }
+        JSONObject syncJSON;
 
         try {
-            logoutJSON = UserData.toJSON();
-            Log.i("UserData JSON", logoutJSON.toString());
+            syncJSON = UserData.toJSON();
+            Log.i("UserData JSON", syncJSON.toString());
         } catch (JSONException e) {
             e.printStackTrace();
-            logoutJSON = new JSONObject();
+            syncJSON = new JSONObject();
         }
 
-        String logoutURL = UserData.getContext().getResources().getString(R.string.logout_base);
+        String syncURL = UserData.getContext().getResources().getString(R.string.sync_base);
 
-        SharedPreferences.Editor logoutLog = context.getSharedPreferences("LOGOUT_LOG", Context.MODE_PRIVATE).edit();
-        logoutLog.putString(((Long) System.currentTimeMillis()).toString(), logoutJSON.toString());
-        logoutLog.apply();
+        HTTPService.PostJSON(syncURL, syncJSON, "", UserData.getContext());
+    }
 
-        HTTPService.PostJSON(logoutURL, logoutJSON, LoginActivity.ACTION_LOGOUT, UserData.getContext());
-
-        Log.i("UserData Logout", "LOGOUT JSON: " + logoutJSON.toString());
+    public static void logout(Context context) {
 
         UserData.setEmail(null);
         UserData.setMilitaryTime(false);
+        UserData.setSession_id(null);
 
     }
 
@@ -164,6 +164,14 @@ public class UserData extends Application {
         settings.putBoolean(context.getResources().getString(R.string.pref_key_spoof_server), militaryTime);
         settings.apply();
 
+    }
+
+    public static String getSession_id() {
+        return session_id;
+    }
+
+    public static void setSession_id(String session_id) {
+        UserData.session_id = session_id;
     }
 
     public static void log(String logString){
